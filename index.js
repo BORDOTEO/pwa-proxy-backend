@@ -1,27 +1,25 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch'); // Assicurati sia in package.json
+const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Abilita CORS (puoi specificare solo il tuo dominio se vuoi più sicurezza)
-app.use(cors({
-  origin: '*', // es: "https://TUA-APP.netlify.app"
-}));
+// 🌐 Inserisci qui l’URL PUBBLICATO del tuo Google Apps Script
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw33M5QP-aL7xuZemyFVcmuIGGYzOnpVm6Mt8qvWiNK80GTA9vkS-1AOXpbK58p7kZL/exec';
 
+// ✅ Middleware
+app.use(cors({ origin: '*' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// ✅ Inserisci qui l'URL corretto del tuo Google Apps Script
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw33M5QP-aL7xuZemyFVcmuIGGYzOnpVm6Mt8qvWiNK80GTA9vkS-1AOXpbK58p7kZL/exec';
-
+// ✅ API di proxy
 app.post('/api/proxy', async (req, res) => {
-  try {
-    console.log("📩 Richiesta ricevuta su /api/proxy");
-    console.log("📝 Parametri ricevuti:", req.body);
+  console.log("📩 Richiesta ricevuta su /api/proxy");
+  console.log("📝 Parametri ricevuti:", req.body);
 
+  try {
     const response = await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
       headers: {
@@ -30,28 +28,34 @@ app.post('/api/proxy', async (req, res) => {
       body: new URLSearchParams(req.body),
     });
 
-    const text = await response.text();
-    console.log("📨 Risposta dallo script Google:", text);
+    const rawText = await response.text();
 
+    // Prova a interpretare la risposta come JSON
     try {
-      const json = JSON.parse(text);
+      const json = JSON.parse(rawText);
       console.log("✅ JSON valido ricevuto:", json);
-      res.json(json);
-    } catch (e) {
-      console.warn("⚠️ La risposta non è JSON valido. Invio testo grezzo al client.");
-      res.send(text);
+      return res.json(json);
+    } catch (parseError) {
+      // 🔴 Se la risposta non è JSON (probabile errore HTML)
+      console.warn("⚠️ Risposta non JSON. Forse errore HTML dallo script.");
+      console.warn("⛔ Contenuto ricevuto:", rawText.slice(0, 300)); // Mostra max 300 char
+      return res.status(500).json({
+        errore: "La risposta non è in formato JSON.",
+        dettaglio: "Possibile errore nello script Google Apps.",
+        contenuto: rawText,
+      });
     }
 
-  } catch (error) {
-    console.error("❌ Errore durante la richiesta al Google Script:", error);
-    res.status(500).json({
-      errore: 'Errore proxy',
-      dettaglio: error.message,
+  } catch (err) {
+    console.error("❌ Errore nella richiesta al Google Apps Script:", err);
+    return res.status(500).json({
+      errore: 'Errore di connessione al Google Script',
+      dettaglio: err.message,
     });
   }
 });
 
-// ✅ Avvio server
+// 🚀 Avvia server
 app.listen(PORT, () => {
-  console.log(`🚀 Server avviato sulla porta ${PORT}`);
+  console.log(`✅ Server avviato su http://localhost:${PORT}`);
 });
