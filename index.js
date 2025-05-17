@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 // ✅ Abilita CORS per Netlify (frontend)
 app.use(cors({
-  origin: '*', // oppure specifica "https://TUOSITO.netlify.app"
+  origin: '*', // oppure: "https://TUOSITO.netlify.app"
 }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,12 +29,12 @@ app.post('/api/proxy', async (req, res) => {
 
     const text = await response.text();
 
-    // Prova a convertire in JSON, se possibile
     try {
       const json = JSON.parse(text);
       res.json(json);
-    } catch {
-      res.send(text); // fallback se il GAS restituisce testo semplice
+    } catch (e) {
+      // fallback: restituisci comunque il testo (es. errore HTML o stringa normale)
+      res.send(text);
     }
 
   } catch (error) {
