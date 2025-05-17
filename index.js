@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // ✅ URL del tuo Google Apps Script
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpebaft0_N3rghw7ajNkjf2tqDVh9JRlzy5o4hBkTuWbKetDDXrsAtiy092HEvS2pJ/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5khb0tZKoPfglOvkRoOnqEmAJgUiu29f81WRw3TIhROwICkDpU8CxZ9eFZXozmo4X/exec';
 
 app.post('/api/proxy', async (req, res) => {
   try {
