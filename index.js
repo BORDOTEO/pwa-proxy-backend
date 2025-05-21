@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 🌐 Inserisci qui l’URL PUBBLICATO del tuo Google Apps Script
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoKPTVYApH_lNFZSkiHr2CVQVdpoVUZ8nAkfYXDNuV3N1j81tja7B9GFR3cAF8iPzL/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw8LVGOELdtunPtriABfGwSYaaAsfoq1mgn4wlRb2d11PpgHoBEwSytgUzN35h5JNgx/exec';
 
 // ✅ Middleware
 app.use(cors({ origin: '*' }));
